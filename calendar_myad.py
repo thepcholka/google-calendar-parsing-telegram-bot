@@ -1,15 +1,17 @@
-import json
-from datetime import datetime
-import os.path
 import google.auth
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+import json
+from datetime import datetime
+import os.path
 
-# Если измените эти области, удалите файл token.json.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
-def main1():
+with open("config.json") as file:
+    config = json.load(file)
+
+def main():
     creds = None
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
@@ -24,39 +26,62 @@ def main1():
 
     service = build('calendar', 'v3', credentials=creds)
     with open('lasttimerecount.json') as timecheck:
-        datettime = json.load(timecheck)
+        date_of_lastrecount = json.load(timecheck)
     datenow = datetime.now()
-    time_min = datetime(datettime["year"], datettime["month"], datettime["day"], datettime["hour"], datettime["minute"], datettime["second"]).isoformat() + 'Z'  # 'Z' означает UTC время
-    time_max = datetime(datenow.year, datenow.month, datenow.day, datenow.hour, datenow.minute, datenow.second).isoformat() + 'Z'  # 'Z' означает UTC время
-    datettime["year"] = datenow.year
-    datettime["month"] = datenow.month
-    datettime["day"] = datenow.day
-    datettime["hour"] = datenow.hour
-    datettime["minute"] = datenow.minute
-    datettime["second"] = datenow.second
+    from_date = datetime(date_of_lastrecount["year"], date_of_lastrecount["month"], date_of_lastrecount["day"], date_of_lastrecount["hour"], date_of_lastrecount["minute"], date_of_lastrecount["second"]).isoformat() + 'Z'
+    to_date = datetime(datenow.year, datenow.month, datenow.day, datenow.hour, datenow.minute, datenow.second).isoformat() + 'Z'
+    date_of_lastrecount["year"] = datenow.year
+    date_of_lastrecount["month"] = datenow.month
+    date_of_lastrecount["day"] = datenow.day
+    date_of_lastrecount["hour"] = datenow.hour
+    date_of_lastrecount["minute"] = datenow.minute
+    date_of_lastrecount["second"] = datenow.second
     with open('lasttimerecount.json', 'w') as dattt:
-        json.dump(datettime, dattt)
-    events_result = service.events().list(calendarId='primary', timeMin=time_min, timeMax=time_max,
+        json.dump(date_of_lastrecount, dattt)
+#Потом заменишь primary на config[calendarid] который в конфиге вставить надо будет, норм же?
+    events_result = service.events().list(calendarId='primary', timeMin=from_date, timeMax=to_date,
                                           singleEvents=True, orderBy='startTime').execute()
     events = events_result.get('items', [])
 
     if not events:
         print('Нет предстоящих событий.')
     with open("babkibabkisukababki.json") as babki:
-        babk = json.load(babki)
+        babkijson = json.load(babki)
     for event in events:
         summary = event.get('summary', 'Нет названия')
         description = event.get('description', 'Нет описания')
-        if description == 'Нет описания':
+        if summary == "Нет названия":
             continue
-        if summary not in babk:
-            babk[summary] = -int(description)
         else:
-            # !!!!!!!!!!!!!!!!!!!!
-            babk[summary] = babk[summary] - int(description)
-            # !!!!!!!!!!!!!!!!!!!!
+            summary_list = list(summary.split())
+            if "Урок" in summary_list:
+                if description == 'Нет описания':
+                    continue
+                if summary not in babkijson:
+                    babkijson["Ученики"][summary] = -int(description)
+                else:
+                    babkijson["Ученики"][summary] -= int(description)
+            elif "Группа" in summary_list:
+                if description == 'Нет описания':
+                    continue
+                if summary_list[1] not in babkijson["Группы"]:
+                    description_list = list(description.split())
+                    babkijson["Группы"][summary_list[1]] = {}
+                    for i in range(0, len(description_list) - 1):
+                        if i % 2 == 0:
+                            babkijson["Группы"][summary_list[1]][description_list[i]] = -int(description_list[i + 1])
+                else:
+                    description_list = list(description.split())
+                    for i in range(0, len(description_list) - 1):
+                        if i % 2 == 0:
+                            if description_list[i] not in babkijson["Группы"][summary_list[1]]:
+                                babkijson["Группы"][summary_list[1]][description_list[i]] = -int(description_list[i + 1])
+                            else:
+                                babkijson["Группы"][summary_list[1]][description_list[i]] -= int(description_list[i + 1])
+
+
     with open("babkibabkisukababki.json", "w") as babochki:
-        json.dump(babk, babochki)
+        json.dump(babkijson, babochki)
 #    for event in events:
 #        start = event['start'].get('dateTime', event['start'].get('date'))
 #        summary = event.get('summary', 'Нет названия')

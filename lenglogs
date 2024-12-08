@@ -1,0 +1,7 @@
+2024-12-08 06:41:14,360 INFO Start polling
+2024-12-08 06:41:14,593 INFO Run polling for bot @matveykalobot id=7546513983 - 'великий бот матвейки'
+2024-12-08 06:41:25,675 INFO file_cache is only supported with oauth2client<4.0.0
+2024-12-08 06:41:26,829 INFO Update id=301615372 is handled. Duration 1445 ms by bot id=7546513983
+2024-12-08 06:42:50,669 WARNING Received SIGINT signal
+2024-12-08 06:42:50,669 INFO Polling stopped for bot @matveykalobot id=7546513983 - 'великий бот матвейки'
+2024-12-08 06:42:50,670 INFO Polling stopped
