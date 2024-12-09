@@ -1,36 +1,45 @@
 import asyncio
 import datetime
 import json
-
 from aiogram import F, Router
 from aiogram.filters import CommandStart, Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 from aiohttp.web_routedef import route
-
-from calendar_myad import main as money_recount
+from defs import pushtojson, takefromjson
 import keyboard as kb
+from calendar_myad import recount as money_recount
+
 router = Router()
+
 class Add(StatesGroup):
     name = State()
     price = State()
+class Substruct(StatesGroup):
+    name = State()
+    price = State()
 
-with open("config.json") as file:
-    config = json.load(file)
-admin_ids = config["ids"]
+
+addjsontopush = {}
+subjsontopush = {}
+insubedit = False
+inaddedit = False
+
+configjson = takefromjson("config.json")
+admin_ids = configjson["ids"]
 
 @router.message(CommandStart())
 async def start(message: Message):
     if message.from_user.id in admin_ids:
-        if message.from_user.id in config["ids"]:
+        if message.from_user.id in configjson["ids"]:
             await message.answer('Привет\nНапиши /help чтобы получить полный список команд',
                          reply_markup= kb.maink)
 
 @router.message(Command('help'))
 async def get_help(message: Message):
     if message.from_user.id in admin_ids:
-        await message.answer("Команды: /add - Оплата ученика")
+        await message.answer("Команды: /add - Оплата ученика; /sub - Вычесть сумму вручную")
 
 
 @router.message(F.text == "💰💰💰Пересчитать babosiki💰💰💰")
@@ -39,26 +48,11 @@ async def recount (message: Message):
         money_recount()
         with open("babkibabkisukababki.json") as file:
             money = json.load(file)
-        await message.answer('Индвидуальные ученики')
-        for i in money["Ученики"]:
-            if money["Ученики"][i] < 0:
-                await message.answer(f'Долг {i} равен: {money["Ученики"][i]}')
-            elif money["Ученики"][i] > 0:
-                await message.answer(f'Остаток {i} равен: {money["Ученики"][i]}')
-            else:
-                await message.answer(f'{i} Красавчик, долг равен: {money["Ученики"][i]}')
-        if len(money["Группы"]) != 0:
-            await message.answer('Группы')
-            for i in money["Группы"]:
-                newgroup = ''
-                for j in money["Группы"][i]:
-                    if money["Группы"][i][j] < 0:
-                        newgroup += f'Долг {j} равен: {money["Группы"][i][j]}\n'
-                    elif money["Группы"][i][j] < 0:
-                        newgroup += f'Остаток {j} равен: {money["Группы"][i][j]}\n'
-                    else:
-                        newgroup += f'{j} Красавчик, долг равен: {money["Группы"][i][j]}\n'
-                await message.answer(f'Группа {money["Группа"][i]}\n{newgroup}')
+        for i in money:
+            if money[i] < 0:
+                await message.answer(f'Долг {i} равен: {money[i]}')
+            elif money[i] >= 0:
+                await message.answer(f'Остаток {i} равен: {money[i]}')
 
 
 @router.message(Command("add"))
@@ -66,8 +60,7 @@ async def addmoney(message: Message, state: FSMContext):
     if message.from_user.id in admin_ids:
         await state.set_state(Add.name)
         stringa = 'Выбери одного:\n'
-        with open("babkibabkisukababki.json") as file:
-            babosiki = json.load(file)
+        babosiki = takefromjson(configjson["moneycount"])
         for i in babosiki:
             stringa += f'`{i}`\n'
         stringa += '\nВыберите и пришлите 1 из этих учеников'
@@ -77,12 +70,11 @@ async def addmoney(message: Message, state: FSMContext):
 @router.message(Add.name)
 async def getname(message: Message, state: FSMContext):
     if message.from_user.id in admin_ids:
-        with open("babkibabkisukababki.json") as file:
-            data = json.load(file)
-            if message.text not in data:
-                await message.answer('нету такого')
-                await state.clear()
-                return
+        data = takefromjson(configjson["moneycount"])
+        if message.text not in data:
+            await message.answer('нету такого')
+            await state.clear()
+            return
         await state.update_data(name = message.text)
         await state.set_state(Add.price)
         await message.answer('Теперь пришлите сколько оплачено denyzhek)))')
@@ -90,12 +82,70 @@ async def getname(message: Message, state: FSMContext):
 @router.message(Add.price)
 async def getprice(message: Message, state: FSMContext):
 #ДОБАВЛЮ ПОТОМ ВОЗМОЖНОСТЬ РЕДАКТИРОВАТЬ И ВСЯ ФИГНЯВАЧКА
+    global inaddedit
     if message.from_user.id in admin_ids:
         await state.update_data(price = message.text)
         data = await state.get_data()
-        with open("babkibabkisukababki.json") as file:
-            dat = json.load(file)
+        dat = takefromjson(configjson["moneycount"])
         dat[data["name"]] += int(data["price"])
-        with open("babkibabkisukababki.json", "w") as fil:
-            json.dump(dat, fil)
+        inaddedit = True
+        await message.answer(text=f'Имя: {data["name"]}\nСумма вычета: {data["price"]}',
+                             reply_markup=kb.Addedit)
+
+@router.callback_query(F.data == 'addok')
+async def addok(callback : CallbackQuery):
+    global inaddedit, addjsontopush
+    if inaddedit:
+        inaddedit = False
+        pushtojson(addjsontopush, configjson["moneycount"])
+
+@router.message(Command('sub'))
+async def substruct(message: Message, state: FSMContext):
+    if message.from_user.id in admin_ids:
+        await state.set_state(Substruct.name)
+        stringa = 'Выбери одного:\n'
+        babosiki = takefromjson(configjson["moneycount"])
+        for i in babosiki:
+            stringa += f'`{i}`\n'
+        stringa += '\nВыберите и пришлите 1 из этих учеников'
+        await message.answer(stringa,
+                             parse_mode="MARKDOWN")
+
+@router.message(Substruct.name)
+async def Subname(message : Message, state : FSMContext):
+    if message.from_user.id in admin_ids:
+        data = takefromjson(configjson["moneycount"])
+        if message.text not in data:
+            await message.answer('нету такого')
+            await state.clear()
+            return
+    await state.update_data(name=message.text)
+    await state.set_state(Substruct.price)
+    await message.answer('Теперь пришлите сколько нужно вычесть')
+
+@router.message(Substruct.price)
+async def Subprice(message : Message, state : FSMContext):
+    global subjsontopush, insubedit
+    if message.from_user.id in admin_ids:
+        await state.update_data(price = message.text)
+        data = await state.get_data()
+        dat = takefromjson(configjson["moneycount"])
+        dat[data["name"]] -= int(data["price"])
+        subjsontopush = dat
         await state.clear()
+        await message.answer(text=f'Имя: {data["name"]}\nСумма вычета: {data["price"]}',
+                             reply_markup= kb.Subedit)
+
+@router.callback_query(F.data == 'subok')
+async def subok(callback : CallbackQuery):
+    global subjsontopush, insubedit
+    if insubedit:
+        insubedit = False
+        pushtojson(subjsontopush, configjson["moneycount"])
+
+@router.callback_query(F.data == 'wrong')
+async def wrong(callback : CallbackQuery):
+    global insubedit, inaddedit
+    await callback.message.answer(text='Начать заного - /sub или /add')
+    insubedit = False
+    inaddedit = False
