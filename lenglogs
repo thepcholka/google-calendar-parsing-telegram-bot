@@ -1,7 +1,28 @@
-2024-12-08 06:41:14,360 INFO Start polling
-2024-12-08 06:41:14,593 INFO Run polling for bot @matveykalobot id=7546513983 - 'великий бот матвейки'
-2024-12-08 06:41:25,675 INFO file_cache is only supported with oauth2client<4.0.0
-2024-12-08 06:41:26,829 INFO Update id=301615372 is handled. Duration 1445 ms by bot id=7546513983
-2024-12-08 06:42:50,669 WARNING Received SIGINT signal
-2024-12-08 06:42:50,669 INFO Polling stopped for bot @matveykalobot id=7546513983 - 'великий бот матвейки'
-2024-12-08 06:42:50,670 INFO Polling stopped
+2024-12-10 00:17:59,602 INFO Update id=301615447 is not handled. Duration 1 ms by bot id=7546513983
+2024-12-10 00:18:04,814 INFO Update id=301615448 is handled. Duration 226 ms by bot id=7546513983
+2024-12-10 00:18:06,741 INFO Update id=301615449 is handled. Duration 68 ms by bot id=7546513983
+2024-12-10 00:18:09,746 INFO Update id=301615450 is handled. Duration 82 ms by bot id=7546513983
+2024-12-10 00:18:11,507 INFO Update id=301615451 is handled. Duration 1 ms by bot id=7546513983
+2024-12-10 00:18:42,188 INFO Update id=301615452 is handled. Duration 238 ms by bot id=7546513983
+2024-12-10 00:18:46,187 INFO Update id=301615453 is not handled. Duration 1 ms by bot id=7546513983
+2024-12-10 00:20:12,328 WARNING Received SIGINT signal
+2024-12-10 00:20:12,330 INFO Polling stopped for bot @matveykalobot id=7546513983 - 'великий бот матвейки'
+2024-12-10 00:20:12,330 INFO Polling stopped
+2024-12-10 00:20:17,511 INFO Start polling
+2024-12-10 00:20:17,873 INFO Run polling for bot @matveykalobot id=7546513983 - 'великий бот матвейки'
+2024-12-10 00:20:18,727 INFO file_cache is only supported with oauth2client<4.0.0
+2024-12-10 00:20:19,625 INFO Update id=301615454 is handled. Duration 904 ms by bot id=7546513983
+2024-12-10 00:20:26,170 INFO Update id=301615455 is handled. Duration 104 ms by bot id=7546513983
+2024-12-10 00:20:31,836 INFO Update id=301615456 is handled. Duration 72 ms by bot id=7546513983
+2024-12-10 00:20:41,701 INFO Update id=301615457 is handled. Duration 195 ms by bot id=7546513983
+2024-12-10 00:20:43,695 INFO Update id=301615458 is handled. Duration 92 ms by bot id=7546513983
+2024-12-10 00:20:46,839 INFO file_cache is only supported with oauth2client<4.0.0
+2024-12-10 00:20:47,465 INFO Update id=301615459 is handled. Duration 627 ms by bot id=7546513983
+2024-12-10 00:21:00,822 WARNING Received SIGINT signal
+2024-12-10 00:21:00,823 INFO Polling stopped for bot @matveykalobot id=7546513983 - 'великий бот матвейки'
+2024-12-10 00:21:00,823 INFO Polling stopped
+2024-12-10 00:21:40,384 INFO Start polling
+2024-12-10 00:21:40,615 INFO Run polling for bot @matveykalobot id=7546513983 - 'великий бот матвейки'
+2024-12-10 00:21:45,981 WARNING Received SIGINT signal
+2024-12-10 00:21:45,982 INFO Polling stopped for bot @matveykalobot id=7546513983 - 'великий бот матвейки'
+2024-12-10 00:21:45,982 INFO Polling stopped

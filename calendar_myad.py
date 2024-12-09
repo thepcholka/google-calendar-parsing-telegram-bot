@@ -6,8 +6,12 @@ import json
 import logging
 from datetime import datetime
 import os.path
-from defs import pushtojson, takefromjson
-from botfunctions import senderror
+from handlers import pushtojson, takefromjson
+
+#from run import bot
+#
+#async def senderror(message):
+#   await bot.send_message(configjson["mainadmin"], text=f'ОШИБКА: {message}')
 
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
@@ -41,7 +45,7 @@ def recount():
     date_of_lastrecount["minute"] = datenow.minute
     date_of_lastrecount["second"] = datenow.second
 
-    pushtojson(date_of_lastrecount, configjson["ltime"])
+    pushtojson(configjson["ltime"], date_of_lastrecount)
 #Потом заменишь primary на config[calendarid] который в конфиге вставить надо будет, норм же?
     events_result = service.events().list(calendarId='primary', timeMin=from_date, timeMax=to_date,
                                           singleEvents=True, orderBy='startTime').execute()
@@ -49,7 +53,7 @@ def recount():
 
     if not events:
         print('Нет предстоящих событий.')
-        babkijson = takefromjson(configjson["moneycount"])
+    babkijson = takefromjson(configjson["moneycount"])
     for event in events:
         eventstart = event['start'].get('dateTime', event['start'].get('date'))
         summary = event.get('summary', 'Нет названия')
@@ -61,9 +65,9 @@ def recount():
             if "урок" or "Урок" in summary_list:
                 if not description.isnumeric():
                     logging.error(f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ! {summary}; Дата занятия: {eventstart}; Описание - {description}')
-                    senderror(f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ! {summary}; Дата занятия: {eventstart}; Описание - {description}')
+#                   senderror(f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ! {summary}; Дата занятия: {eventstart}; Описание - {description}')
                     continue
-                if summary not in babkijson:
+                if summary_list[1] not in babkijson:
                     babkijson[summary] = -int(description)
                 else:
                     babkijson[summary] -= int(description)
@@ -72,11 +76,11 @@ def recount():
                 for i in range(1, len(description_list) - 1):
                     if not description_list[i + 1].isnumeric():
                         logging.error(f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ! {summary}; {i}; Дата занятия: {eventstart}; Описание - {description}')
-                        senderror(f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ! {summary}; {i}; Дата занятия: {eventstart}; Описание - {description}')
+#                       senderror(f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ! {summary}; {i}; Дата занятия: {eventstart}; Описание - {description}')
                         continue
                     if i % 2 == 0:
                         if description_list[i] not in babkijson:
                             babkijson[description_list[i]] = -int(description_list[i + 1])
                         else:
                             babkijson[description_list[i]] -= int(description_list[i + 1])
-    pushtojson(babkijson, configjson["moneycount"])
+        pushtojson(configjson["moneycount"], babkijson)

@@ -20,6 +20,14 @@ class Substruct(StatesGroup):
     name = State()
     price = State()
 
+def pushtojson(json_name, file_to_push):
+    with open(json_name, "w") as jsonfile:
+        json.dump(file_to_push, jsonfile)
+
+def takefromjson(json_name):
+    with open(json_name) as jsonfil:
+        jsonfile = json.load(jsonfil)
+    return jsonfile
 
 addjsontopush = {}
 subjsontopush = {}
@@ -82,22 +90,26 @@ async def getname(message: Message, state: FSMContext):
 @router.message(Add.price)
 async def getprice(message: Message, state: FSMContext):
 #ДОБАВЛЮ ПОТОМ ВОЗМОЖНОСТЬ РЕДАКТИРОВАТЬ И ВСЯ ФИГНЯВАЧКА
-    global inaddedit
+    global inaddedit, addjsontopush
     if message.from_user.id in admin_ids:
         await state.update_data(price = message.text)
         data = await state.get_data()
         dat = takefromjson(configjson["moneycount"])
         dat[data["name"]] += int(data["price"])
+        await state.clear()
+        addjsontopush = dat
         inaddedit = True
-        await message.answer(text=f'Имя: {data["name"]}\nСумма вычета: {data["price"]}',
+        await message.answer(text=f'Имя: {data["name"]}\nСумма: {data["price"]}',
                              reply_markup=kb.Addedit)
 
 @router.callback_query(F.data == 'addok')
 async def addok(callback : CallbackQuery):
     global inaddedit, addjsontopush
     if inaddedit:
+        await callback.message.edit_text(text='Успешно!',
+                                         reply_markup=None)
         inaddedit = False
-        pushtojson(addjsontopush, configjson["moneycount"])
+        pushtojson(configjson["moneycount"], addjsontopush)
 
 @router.message(Command('sub'))
 async def substruct(message: Message, state: FSMContext):
@@ -132,6 +144,7 @@ async def Subprice(message : Message, state : FSMContext):
         dat = takefromjson(configjson["moneycount"])
         dat[data["name"]] -= int(data["price"])
         subjsontopush = dat
+        insubedit = True
         await state.clear()
         await message.answer(text=f'Имя: {data["name"]}\nСумма вычета: {data["price"]}',
                              reply_markup= kb.Subedit)
@@ -140,11 +153,14 @@ async def Subprice(message : Message, state : FSMContext):
 async def subok(callback : CallbackQuery):
     global subjsontopush, insubedit
     if insubedit:
+        await callback.message.edit_text(text='Успешно!',
+                                         reply_markup=None)
         insubedit = False
-        pushtojson(subjsontopush, configjson["moneycount"])
+        pushtojson(configjson["moneycount"], subjsontopush)
 
 @router.callback_query(F.data == 'wrong')
 async def wrong(callback : CallbackQuery):
+    await callback.message.delete()
     global insubedit, inaddedit
     await callback.message.answer(text='Начать заного - /sub или /add')
     insubedit = False
