@@ -6,17 +6,12 @@ import json
 import logging
 from datetime import datetime
 import os.path
-from handlers import pushtojson, takefromjson
-
-#from run import bot
-#
-#async def senderror(message):
-#   await bot.send_message(configjson["mainadmin"], text=f'ОШИБКА: {message}')
+from dfs import pushtojson, takefromjson
 
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
 configjson = takefromjson("config.json")
-logging.basicConfig(level=logging.INFO, filename="lenglogs", format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=logging.INFO, filename="lenglogs.txt", format="%(asctime)s %(levelname)s %(message)s")
 
 def recount():
     creds = None
@@ -65,18 +60,18 @@ def recount():
             if "урок" or "Урок" in summary_list:
                 if not description.isnumeric():
                     logging.error(f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ! {summary}; Дата занятия: {eventstart}; Описание - {description}')
-#                   senderror(f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ! {summary}; Дата занятия: {eventstart}; Описание - {description}')
+                    senderror(f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ! {summary}; Дата занятия: {eventstart}; Описание - {description}')
                     continue
                 if summary_list[1] not in babkijson:
-                    babkijson[summary] = -int(description)
+                    babkijson[summary_list[1]] = -int(description)
                 else:
-                    babkijson[summary] -= int(description)
+                    babkijson[summary_list[1]] -= int(description)
             elif "Группа" or "группа" in babkijson:
                 description_list = list(description)
                 for i in range(1, len(description_list) - 1):
                     if not description_list[i + 1].isnumeric():
                         logging.error(f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ! {summary}; {i}; Дата занятия: {eventstart}; Описание - {description}')
-#                       senderror(f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ! {summary}; {i}; Дата занятия: {eventstart}; Описание - {description}')
+                        senderror(f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ! {summary}; {i}; Дата занятия: {eventstart}; Описание - {description}')
                         continue
                     if i % 2 == 0:
                         if description_list[i] not in babkijson:

@@ -7,11 +7,10 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 from aiohttp.web_routedef import route
-from defs import pushtojson, takefromjson
 import keyboard as kb
 from calendar_myad import recount as money_recount
-
-router = Router()
+from dfs import pushtojson, takefromjson
+from run import router
 
 class Add(StatesGroup):
     name = State()
@@ -19,15 +18,6 @@ class Add(StatesGroup):
 class Substruct(StatesGroup):
     name = State()
     price = State()
-
-def pushtojson(json_name, file_to_push):
-    with open(json_name, "w") as jsonfile:
-        json.dump(file_to_push, jsonfile)
-
-def takefromjson(json_name):
-    with open(json_name) as jsonfil:
-        jsonfile = json.load(jsonfil)
-    return jsonfile
 
 addjsontopush = {}
 subjsontopush = {}
