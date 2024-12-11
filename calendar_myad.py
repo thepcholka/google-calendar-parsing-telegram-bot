@@ -81,10 +81,10 @@ def recount():
                         f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ!\n {summary};\n Дата занятия: {eventstart};\n Описание - {description}')
                     errors += f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ!\n {summary};\n Дата занятия: {eventstart};\n Описание - {description}\n\n'
                     continue
-                if summary_list[1] not in babki_json:
-                    babki_json[summary_list[1]] = -int(description)
+                if summary_list[0] not in babki_json:
+                    babki_json[summary_list[0]] = -int(description)
                 else:
-                    babki_json[summary_list[1]] -= int(description)
+                    babki_json[summary_list[0]] -= int(description)
             elif ("Группа" in summary_list) or ("группа" in summary_list):
                 description_list = list(description.split())
                 for i in range(0, len(description_list) - 1, 2):
