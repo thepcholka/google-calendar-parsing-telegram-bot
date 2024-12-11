@@ -31,9 +31,7 @@ def recount():
                 port=0, access_type='offline', prompt='consent')
         with open(configjson["token"], 'w') as token:
             token.write(creds.to_json())
-
     service = build('calendar', 'v3', credentials=creds)
-
     date_of_lastrecount = take_from_json(configjson["ltime"])
 
     date_now = datetime.now()
@@ -67,7 +65,7 @@ def recount():
     events = events_result.get('items', [])
     errors = ''
     if not events:
-        print('Нет предстоящих событий.')
+        logging.info('Нет предстоящих событий.\n\n')
     babki_json = take_from_json(configjson["moneycount"])
     for event in events:
         eventstart = event['start'].get('dateTime', event['start'].get('date'))
@@ -76,7 +74,7 @@ def recount():
         if summary == "Нет названия":
             continue
         else:
-            summary_list = list(summary)
+            summary_list = list(summary.split())
             if ("урок" in summary_list) or ("Урок" in summary_list):
                 if not description.isnumeric():
                     logging.error(
@@ -88,19 +86,16 @@ def recount():
                 else:
                     babki_json[summary_list[1]] -= int(description)
             elif ("Группа" in summary_list) or ("группа" in summary_list):
-                description_list = list(description)
-                for i in range(1, len(description_list) - 1):
+                description_list = list(description.split())
+                for i in range(0, len(description_list) - 1, 2):
                     if not description_list[i + 1].isnumeric():
                         logging.error(
                             f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ!\n {summary};\n {i};\n Дата занятия: {eventstart};\n Описание - {description}\n\n')
                         errors += f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ!\n {summary};\n {i};\n Дата занятия: {eventstart};\n Описание - {description}\n\n'
                         continue
-                    if i % 2 == 0:
-                        if description_list[i] not in babki_json:
-                            babki_json[description_list[i]] = - \
-                                int(description_list[i + 1])
-                        else:
-                            babki_json[description_list[i]
-                                       ] -= int(description_list[i + 1])
+                    if description_list[i] not in babki_json:
+                        babki_json[description_list[i]] = -int(description_list[i + 1])
+                    else:
+                        babki_json[description_list[i]] -= int(description_list[i + 1])
         push_to_json(configjson["moneycount"], babki_json)
-        return errors
+    return errors

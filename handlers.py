@@ -60,7 +60,7 @@ async def recount(message: Message):
                 await message.answer(f'Долг {i} равен: {money[i]} руб')
             elif money[i] >= 0:
                 await message.answer(f'Остаток {i} равен: {money[i]} руб')
-        if errors != None:
+        if errors != '':
             await message.answer(f'Ошибки:\n{errors}')
 
 

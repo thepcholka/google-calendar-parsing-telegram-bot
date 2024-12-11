@@ -1,8 +1,5 @@
-config.json
-credentials.json
-token.json
+*.json
 .venv
 .idea
 quickstart.py
 lenglogs.txt
-
