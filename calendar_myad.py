@@ -5,6 +5,9 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from datetime import datetime
+
+from pydantic.v1.typing import NoneType
+
 from util import push_to_json, take_from_json
 
 def from_date_function():
@@ -26,14 +29,14 @@ def get_last_date_time():
 
 def get_now_date():
     date_now = datetime.now()
-    datetime(
+    date = datetime(
         date_now.year,
         date_now.month,
         date_now.day,
         date_now.hour,
         date_now.minute,
         date_now.second).isoformat() + 'Z'
-    return date_now
+    return date
 
 def last_date_update(date_now):
     config_json = take_from_json("config.json")
@@ -63,8 +66,9 @@ def get_service():
             creds = flow.run_local_server(
                 port=0, access_type='offline', prompt='consent')
         creds_to_json = creds.to_json()
-        push_to_json(config_json["google_token"], creds_to_json, 1)
+        push_to_json(config_json["google_token"], creds_to_json, True)
     service = build('calendar', 'v3', credentials=creds)
+
     return service
 
 def processing_event(event):
@@ -111,8 +115,9 @@ def recount():
     from_date = get_last_date_time()
     to_date = get_now_date()
     last_date_update(date_now)
+
     events_result = service.events().list(
-        calendarId=config_json["calendar_id"],
+        calendarId='primary',
         timeMin=from_date,
         timeMax=to_date,
         singleEvents=True,
@@ -123,5 +128,8 @@ def recount():
     if not events:
         logging.info('Нет предстоящих событий.\n\n')
     for event in events:
-        errors += processing_event(event)
+        processed = processing_event(event)
+        if processed is None:
+            processed = ""
+        errors += processed
     return errors

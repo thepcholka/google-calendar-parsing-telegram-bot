@@ -77,6 +77,7 @@ async def add_money(message: Message, state: FSMContext):
 
 @router.message(Add.name)
 async def get_name(message: Message, state: FSMContext):
+    config_json = take_from_json("config.json")
     if message.from_user.id in config_json["ids"]:
         data = take_from_json(config_json["money_count"])
         if message.text not in data:
@@ -90,6 +91,7 @@ async def get_name(message: Message, state: FSMContext):
 
 @router.message(Add.price)
 async def get_price(message: Message, state: FSMContext):
+    config_json = take_from_json("config.json")
     global in_add_edit, add_json_to_push
     if message.from_user.id in config_json["ids"]:
         if not message.text.isnumeric():
@@ -109,6 +111,7 @@ async def get_price(message: Message, state: FSMContext):
 
 @router.callback_query(F.data == 'add_ok')
 async def add_ok(callback: CallbackQuery):
+    config_json = take_from_json("config.json")
     global in_add_edit
     if in_add_edit:
         await callback.message.edit_text(text='Успешно!',
@@ -119,7 +122,6 @@ async def add_ok(callback: CallbackQuery):
 
 @router.message(F.text == 'Вычесть')
 async def sub_struct(message: Message, state: FSMContext):
-    global config_json
     config_json = take_from_json("config.json")
     if message.from_user.id in config_json["ids"]:
         await state.set_state(Substruct.name)
@@ -134,6 +136,7 @@ async def sub_struct(message: Message, state: FSMContext):
 
 @router.message(Substruct.name)
 async def sub_name(message: Message, state: FSMContext):
+    config_json = take_from_json("config.json")
     if message.from_user.id in config_json["ids"]:
         data = take_from_json(config_json["money_count"])
         if message.text not in data:
@@ -148,6 +151,7 @@ async def sub_name(message: Message, state: FSMContext):
 @router.message(Substruct.price)
 async def sub_price(message: Message, state: FSMContext):
     global sub_json_to_push, in_sub_edit
+    config_json = take_from_json("config.json")
     if message.from_user.id in config_json["ids"]:
         await state.update_data(price=message.text)
         data = await state.get_data()
@@ -162,6 +166,7 @@ async def sub_price(message: Message, state: FSMContext):
 
 @router.callback_query(F.data == 'sub_ok')
 async def sub_ok(callback: CallbackQuery):
+    config_json = take_from_json("config.json")
     global sub_json_to_push, in_sub_edit
     if in_sub_edit:
         await callback.message.edit_text(text='Успешно!',
@@ -188,6 +193,7 @@ async def add_new(message: Message, state: FSMContext):
 
 @router.message(Addnew.name)
 async def add_new_name(message: Message, state: FSMContext):
+    config_json = take_from_json("config.json")
     if message.from_user.id in config_json["ids"]:
         await state.update_data(name = message.text)
         await state.set_state(Addnew.price)
@@ -195,6 +201,7 @@ async def add_new_name(message: Message, state: FSMContext):
 
 @router.message(Addnew.price)
 async def add_new_price(message: Message, state: FSMContext):
+    config_json = take_from_json("config.json")
     if not message.text.isnumeric():
         await message.answer('Неправильный ввод\nначните заного - /addnew')
         await state.clear()
@@ -223,6 +230,7 @@ async def delete(message: Message, state: FSMContext):
 
 @router.message(Delete.name)
 async def delete_name(message: Message, state: FSMContext):
+    config_json = take_from_json("config.json")
     await state.update_data(name=message.text)
     delete_json = take_from_json(config_json["money_count"])
     if message.text not in delete_json:
