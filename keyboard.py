@@ -1,19 +1,19 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
 maink = ReplyKeyboardMarkup(keyboard=[
-    [KeyboardButton(text="Пересчитать babosiki"), KeyboardButton(text='/check')],
-    [KeyboardButton(text="/add"), KeyboardButton(text='/sub')],
-    [KeyboardButton(text='/addnew'), KeyboardButton(text='/del')]
+    [KeyboardButton(text="Пересчитать"), KeyboardButton(text='Проверить баланс')],
+    [KeyboardButton(text="Добавить"), KeyboardButton(text='Вычесть')],
+    [KeyboardButton(text='Добавить ученика'), KeyboardButton(text='Удалить ученика')]
 ],
     resize_keyboard=True
                             )
 Addedit = InlineKeyboardMarkup(inline_keyboard = [
     [InlineKeyboardButton(text='Заново давай', callback_data = 'wrong')],
-    [InlineKeyboardButton(text='Все ок', callback_data= 'addok')]
+    [InlineKeyboardButton(text='Все ок', callback_data= 'add_ok')]
 ])
 Subedit = InlineKeyboardMarkup(inline_keyboard = [
     [InlineKeyboardButton(text='Заново давай', callback_data = 'wrong')],
-    [InlineKeyboardButton(text='Все ок', callback_data='subok')]
+    [InlineKeyboardButton(text='Все ок', callback_data='sub_ok')]
 ])
 
 Addnew = InlineKeyboardMarkup(inline_keyboard= [

@@ -1,10 +1,10 @@
 import asyncio
-import logging
-import json
 from aiogram import Dispatcher, Bot
+from util import take_from_json
 from handlers import router
-with open("config.json") as file:
-    config = json.load(file)
+import logging
+
+config = take_from_json("config.json")
 Token = config["Token"]
 
 dp = Dispatcher()
@@ -15,7 +15,7 @@ async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, filename="lenglogs.txt", filemode="a",
+    logging.basicConfig(level=logging.INFO, filename=config["logs"], filemode="a",
                         format="%(asctime)s %(levelname)s %(message)s")
     try:
         asyncio.run(main())
