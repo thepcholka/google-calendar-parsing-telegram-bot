@@ -18,7 +18,7 @@ def push_to_json(json_name, file_to_push, flag = 0):
         if os.path.exists(json_name) == False:
             logging.error(f'Файла с названием: ({json_name}) не существует')
         if flag == 1:
-            with open(config_json["googletoken"], "w") as token:
+            with open(config_json["google_token"], "w") as token:
                 token.write(file_to_push)
         with open(json_name, "w") as jsonfile:
             json.dump(file_to_push, jsonfile)

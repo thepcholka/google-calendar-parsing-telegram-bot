@@ -9,12 +9,12 @@ from util import push_to_json, take_from_json
 
 def from_date_function():
     config_json = take_from_json("config.json")
-    date_of_lastrecount = take_from_json(config_json["ltime"])
+    date_of_lastrecount = take_from_json(config_json["last_time"])
     return date_of_lastrecount
 
 def get_last_date_time():
     config_json = take_from_json("config.json")
-    date_of_lastrecount = take_from_json(config_json["ltime"])
+    date_of_lastrecount = take_from_json(config_json["last_time"])
     date = datetime(
         date_of_lastrecount["year"],
         date_of_lastrecount["month"],
@@ -37,23 +37,23 @@ def get_now_date():
 
 def last_date_update(date_now):
     config_json = take_from_json("config.json")
-    date_of_lastrecount = take_from_json(config_json["ltime"])
+    date_of_lastrecount = take_from_json(config_json["last_time"])
     date_of_lastrecount["year"] = date_now.year
     date_of_lastrecount["month"] = date_now.month
     date_of_lastrecount["day"] = date_now.day
     date_of_lastrecount["hour"] = date_now.hour
     date_of_lastrecount["minute"] = date_now.minute
     date_of_lastrecount["second"] = date_now.second
-    push_to_json(config_json["ltime"], date_of_lastrecount)
+    push_to_json(config_json["last_time"], date_of_lastrecount)
 
 def get_service():
     SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
     config_json = take_from_json("config.json")
     creds = None
-    if os.path.exists(config_json["googletoken"]):
+    if os.path.exists(config_json["google_token"]):
         creds = Credentials.from_authorized_user_file(
-            config_json["googletoken"], SCOPES)
+            config_json["google_token"], SCOPES)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(google.auth.transport.requests.Request())
@@ -63,14 +63,14 @@ def get_service():
             creds = flow.run_local_server(
                 port=0, access_type='offline', prompt='consent')
         creds_to_json = creds.to_json()
-        push_to_json(config_json["googletoken"], creds_to_json, 1)
+        push_to_json(config_json["google_token"], creds_to_json, 1)
     service = build('calendar', 'v3', credentials=creds)
     return service
 
 def processing_event(event):
     errors = ''
     config_json = take_from_json("config.json")
-    babki_json = take_from_json(config_json["moneycount"])
+    babki_json = take_from_json(config_json["money_count"])
     event_start = event['start'].get('dateTime', event['start'].get('date'))
     summary = event.get('summary', 'Нет названия')
     description = event.get('description', 'Нет описания')
@@ -100,7 +100,7 @@ def processing_event(event):
                     babki_json[description_list[i]] = -int(description_list[i + 1])
                 else:
                     babki_json[description_list[i]] -= int(description_list[i + 1])
-    push_to_json(config_json["moneycount"], babki_json)
+    push_to_json(config_json["money_count"], babki_json)
     return errors
 
 def recount():
@@ -111,9 +111,8 @@ def recount():
     from_date = get_last_date_time()
     to_date = get_now_date()
     last_date_update(date_now)
-
     events_result = service.events().list(
-        calendarId=config_json["calendarid"],
+        calendarId=config_json["calendar_id"],
         timeMin=from_date,
         timeMax=to_date,
         singleEvents=True,
