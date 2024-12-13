@@ -113,7 +113,7 @@ def recount():
     last_date_update(date_now)
 
     events_result = service.events().list(
-        calendarId=config_json['calendar_id'],
+        calendarId='primary',
         timeMin=from_date,
         timeMax=to_date,
         singleEvents=True,
