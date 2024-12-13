@@ -36,7 +36,7 @@ async def start(message: Message):
     config_json = take_from_json("config.json")
     if message.from_user.id in config_json["ids"]:
         await message.answer('Привет\nНапиши /help чтобы получить полный список команд',
-                             reply_markup=kb.maink)
+                             reply_markup=kb.Main_keyboard)
 
 
 @router.message(Command('help'))
@@ -45,7 +45,7 @@ async def get_help(message: Message):
     if message.from_user.id in config_json["ids"]:
         await message.answer("Команды:\nДобавить - Оплата ученика;\nВычесть - Вычесть сумму вручную\nДобавить ученика - добавить нового ученика\nУдалить ученика - Удалить ученика\nПроверить баланс - проверить баланс\nПересчитать - пересчитать с учетом новых занятий")
 
-
+# adds all new lessons to balance
 @router.message(F.text == "Пересчитать")
 async def recount(message: Message):
     config_json = take_from_json("config.json")
@@ -57,7 +57,7 @@ async def recount(message: Message):
         if errors != '':
             await message.answer(f'Ошибки:\n{errors}')
 
-
+# manualy increase someone's balance
 @router.message(F.text == "Добавить")
 async def add_money(message: Message, state: FSMContext):
     config_json = take_from_json("config.json")
@@ -74,7 +74,7 @@ async def add_money(message: Message, state: FSMContext):
             await message.answer(message_text,
                                  parse_mode="MARKDOWN")
 
-
+# takes name of student
 @router.message(Add.name)
 async def get_name(message: Message, state: FSMContext):
     config_json = take_from_json("config.json")
@@ -88,7 +88,7 @@ async def get_name(message: Message, state: FSMContext):
         await state.set_state(Add.price)
         await message.answer('Теперь пришлите сколько оплачено denyzhek)))')
 
-
+# takes how much to increase
 @router.message(Add.price)
 async def get_price(message: Message, state: FSMContext):
     config_json = take_from_json("config.json")
@@ -106,9 +106,9 @@ async def get_price(message: Message, state: FSMContext):
         add_json_to_push = dat
         in_add_edit = True
         await message.answer(text=f'Имя: {data["name"]}\nСумма: {data["price"]}',
-                             reply_markup=kb.Addedit)
+                             reply_markup=kb.Add_edit)
 
-
+# if user sad that everything good on increasing
 @router.callback_query(F.data == 'add_ok')
 async def add_ok(callback: CallbackQuery):
     config_json = take_from_json("config.json")
@@ -119,7 +119,7 @@ async def add_ok(callback: CallbackQuery):
         in_add_edit = False
         push_to_json(config_json["money_count"], add_json_to_push)
 
-
+# manualy decrease someone's balance
 @router.message(F.text == 'Вычесть')
 async def sub_struct(message: Message, state: FSMContext):
     config_json = take_from_json("config.json")
@@ -133,7 +133,7 @@ async def sub_struct(message: Message, state: FSMContext):
         await message.answer(message_text,
                              parse_mode="MARKDOWN")
 
-
+#same as add_name
 @router.message(Substruct.name)
 async def sub_name(message: Message, state: FSMContext):
     config_json = take_from_json("config.json")
@@ -147,7 +147,7 @@ async def sub_name(message: Message, state: FSMContext):
     await state.set_state(Substruct.price)
     await message.answer('Теперь пришлите сколько нужно вычесть')
 
-
+#same as add_price
 @router.message(Substruct.price)
 async def sub_price(message: Message, state: FSMContext):
     global sub_json_to_push, in_sub_edit
@@ -161,9 +161,9 @@ async def sub_price(message: Message, state: FSMContext):
         in_sub_edit = True
         await state.clear()
         await message.answer(text=f'Имя: {data["name"]}\nСумма вычета: {data["price"]}',
-                             reply_markup=kb.Subedit)
+                             reply_markup=kb.Sub_edit)
 
-
+#same as add_ok
 @router.callback_query(F.data == 'sub_ok')
 async def sub_ok(callback: CallbackQuery):
     config_json = take_from_json("config.json")
@@ -174,7 +174,7 @@ async def sub_ok(callback: CallbackQuery):
         in_sub_edit = False
         push_to_json(config_json["money_count"], sub_json_to_push)
 
-
+# if something went wrong on increasing or decreasing balance
 @router.callback_query(F.data == 'wrong')
 async def wrong(callback: CallbackQuery):
     await callback.message.delete()
@@ -183,7 +183,7 @@ async def wrong(callback: CallbackQuery):
     in_sub_edit = False
     in_add_edit = False
 
-
+# adds new student
 @router.message(F.text == 'Добавить ученика')
 async def add_new(message: Message, state: FSMContext):
     config_json = take_from_json("config.json")
@@ -191,6 +191,7 @@ async def add_new(message: Message, state: FSMContext):
         await state.set_state(Addnew.name)
         await message.answer('Введите имя ученика:')
 
+#same as add_name
 @router.message(Addnew.name)
 async def add_new_name(message: Message, state: FSMContext):
     config_json = take_from_json("config.json")
@@ -199,6 +200,7 @@ async def add_new_name(message: Message, state: FSMContext):
         await state.set_state(Addnew.price)
         await message.answer('Пришлите баланс ученика:')
 
+# just puts this balance on student
 @router.message(Addnew.price)
 async def add_new_price(message: Message, state: FSMContext):
     config_json = take_from_json("config.json")
@@ -214,7 +216,7 @@ async def add_new_price(message: Message, state: FSMContext):
     await state.clear()
     await message.answer("Успешно!")
 
-
+# delete student
 @router.message(F.text == 'Удалить ученика')
 async def delete(message: Message, state: FSMContext):
     config_json = take_from_json("config.json")
@@ -228,6 +230,7 @@ async def delete(message: Message, state: FSMContext):
         await message.answer(message_text,
                              parse_mode="MARKDOWN")
 
+#takes name of student to delete
 @router.message(Delete.name)
 async def delete_name(message: Message, state: FSMContext):
     config_json = take_from_json("config.json")
@@ -242,6 +245,7 @@ async def delete_name(message: Message, state: FSMContext):
     await message.answer('Успешно!')
     await state.clear()
 
+#balance check (without any recounting from calendar)
 @router.message(F.text == 'Проверить баланс')
 async def balance(message: Message):
     config_json = take_from_json("config.json")

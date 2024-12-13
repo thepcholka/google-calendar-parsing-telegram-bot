@@ -2,6 +2,7 @@ import json
 import logging
 import os
 
+# function that returns opened json
 def take_from_json(json_name):
     try:
         if os.path.exists(json_name) == False:
@@ -12,6 +13,7 @@ def take_from_json(json_name):
     except:
         raise Exception(f'НЕВЕРНОЕ НАИМЕНОВАНИЕ ФАЙЛА: {json_name}')
 
+# function that pushes file to json
 def push_to_json(json_name, file_to_push, its_token = False):
     try:
         if os.path.exists(json_name) == False:
@@ -25,7 +27,7 @@ def push_to_json(json_name, file_to_push, its_token = False):
     except:
         raise Exception(f'НЕВЕРНОЕ НАИМЕНОВАНИЕ ФАЙЛА: {json_name}')
 
-
+# takes balance
 def take_balance(money):
     message_text = ''
     for i in money:
