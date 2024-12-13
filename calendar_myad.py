@@ -75,7 +75,7 @@ def processing_event(event):
     summary = event.get('summary', 'Нет названия')
     description = event.get('description', 'Нет описания')
     if summary == "Нет названия":
-        return
+        return ''
     else:
         summary_list = list(summary.split())
         if ("урок" in summary_list) or ("Урок" in summary_list):
@@ -83,7 +83,7 @@ def processing_event(event):
                 logging.error(
                     f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ!\n {summary};\n Дата занятия: {event_start};\n Описание - {description}')
                 errors += f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ!\n {summary};\n Дата занятия: {event_start};\n Описание - {description}\n\n'
-                return
+                return errors
             if summary_list[0] not in babki_json:
                 babki_json[summary_list[0]] = -int(description)
             else:
@@ -95,7 +95,7 @@ def processing_event(event):
                     logging.error(
                         f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ!\n {summary};\n {i};\n Дата занятия: {event_start};\n Описание - {description}\n\n')
                     errors += f'НЕПРАВИЛЬНЫЙ ФОРМАТ ОПИСАНИЯ!\n {summary};\n {i};\n Дата занятия: {event_start};\n Описание - {description}\n\n'
-                    continue
+                    return errors
                 if description_list[i] not in babki_json:
                     babki_json[description_list[i]] = -int(description_list[i + 1])
                 else:
@@ -125,7 +125,5 @@ def recount():
         logging.info('Нет предстоящих событий.\n\n')
     for event in events:
         processed = processing_event(event)
-        if processed is None:
-            processed = ""
         errors += processed
     return errors
